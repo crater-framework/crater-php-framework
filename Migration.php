@@ -8,16 +8,19 @@
  */
 
 namespace Core;
+
 use Core\Migration\MigrationAbstract;
 
-class Migration extends MigrationAbstract {
+class Migration extends MigrationAbstract
+{
 
     /**
      * Create new migration file
      * @param string $name Name of migration file
      * @return bool|string
      */
-    public function newMigration($name) {
+    public function newMigration($name)
+    {
         $time = time();
         $date = date("n/j/Y");
 
@@ -25,7 +28,7 @@ class Migration extends MigrationAbstract {
         if ($name) $fileName = "{$time}_{$name}.php";
 
         $file = $this->storagePath . "/" . $fileName;
-        $class = 'Migration_'.((int)$time);
+        $class = 'Migration_' . ((int)$time);
         $contents = array('<?php');
         $contents[] = '/*';
         $contents[] = " * {$name} migration file";
@@ -34,19 +37,22 @@ class Migration extends MigrationAbstract {
         $contents[] = ' * @version 1.0';
         $contents[] = " * @date $date";
         $contents[] = ' */';
-        $contents[] = 'class '.$class.' extends \Core\Migration {';
+        $contents[] = 'class ' . $class . ' extends \Core\Migration';
+        $contents[] = '{';
         $contents[] = '';
-        $contents[] = "    public function up() {";
-        $contents[] = "        ";
+        $contents[] = "    public function up()";
+        $contents[] = "    {";
+        $contents[] = "";
         $contents[] = "    }";
         $contents[] = "";
-        $contents[] = "    public function down() {";
-        $contents[] = "        ";
+        $contents[] = "    public function down()";
+        $contents[] = "    {";
+        $contents[] = "";
         $contents[] = "    }";
         $contents[] = '}';
 
-        if (file_put_contents($file, implode("\n",$contents))){
-            echo 'Create '.$file . "\n\r";
+        if (file_put_contents($file, implode("\n", $contents))) {
+            echo 'Create ' . $file . "\n\r";
             return $file;
         }
         return false;
@@ -59,9 +65,10 @@ class Migration extends MigrationAbstract {
      * @param array $data Array with table definition
      * @return bool
      */
-    public function createTable($name, $data) {
+    public function createTable($name, $data)
+    {
         $q = "CREATE TABLE {$name} (";
-        foreach ($data as $key => $v ) {
+        foreach ($data as $key => $v) {
             $q .= $key;
 
             if (isset($v['type'])) {
@@ -73,22 +80,46 @@ class Migration extends MigrationAbstract {
                         die ("Please set length for table: {$name} - column: {$key}");
                     }
                 }
-                if (isset($v['unsigned']) && $v['unsigned'] == true) $q .= " UNSIGNED";
-                if (!isset($v['null']) || $v['null'] == false) $q .= " NOT NULL";
+
+                if (isset($v['unsigned']) && $v['unsigned'] == true) {
+                    $q .= " UNSIGNED";
+                }
+
+                if (!isset($v['null']) || $v['null'] == false) {
+                    $q .= " NOT NULL";
+                }
+
                 if (isset($v['default'])) {
-                    if (is_string($v['default'])) $v['default'] = "'{$v['default']}'";
+                    if (is_string($v['default'])) {
+                        $v['default'] = "'{$v['default']}'";
+                    }
+
                     $q .= " DEFAULT {$v['default']}";
                 }
 
-                if (isset($v['ai']) && $v['ai'] == true) $q .= " AUTO_INCREMENT";
-                if ((isset($v['unique']) && $v['unique'] == true) && (isset($v['primary']) && $v['primary'] == true)) die ("Unique or Primary?");
-                if (isset($v['unique']) && $v['unique'] == true) $q .= " UNIQUE";
-                if (isset($v['primary']) && $v['primary'] == true) $q .= " PRIMARY KEY";
+                if (isset($v['ai']) && $v['ai'] == true) {
+                    $q .= " AUTO_INCREMENT";
+                }
+
+                if ((isset($v['unique']) && $v['unique'] == true) && (isset($v['primary']) && $v['primary'] == true)) {
+                    die ("Unique or Primary?");
+                }
+
+                if (isset($v['unique']) && $v['unique'] == true) {
+                    $q .= " UNIQUE";
+                }
+
+                if (isset($v['primary']) && $v['primary'] == true) {
+                    $q .= " PRIMARY KEY";
+                }
+
                 if (isset($v['foreign']) && isset($v['foreign']['table']) && isset($v['foreign']['column'])) {
                     $q .= " ,FOREIGN KEY ({$key}) REFERENCES {$v['foreign']['table']}({$v['foreign']['column']})";
+
                     if (isset($v['foreign']['delete']) && $v['foreign']['delete'] == true) {
                         $q .= " ON DELETE CASCADE";
                     }
+
                     if (isset($v['foreign']['update']) && $v['foreign']['update'] == true) {
                         $q .= " ON UPDATE CASCADE";
                     }
@@ -113,7 +144,8 @@ class Migration extends MigrationAbstract {
      * @param string $query Query
      * @return bool
      */
-    public function query ($query) {
+    public function query($query)
+    {
         return $this->executeQuery($query);
     }
 
@@ -125,7 +157,8 @@ class Migration extends MigrationAbstract {
      * @param array $data Array with column definition
      * @return bool
      */
-    public function addColumn ($table, $name, $data) {
+    public function addColumn($table, $name, $data)
+    {
 
         $q = "ALTER TABLE {$table} ADD {$name}";
         $v = $data;
@@ -139,18 +172,42 @@ class Migration extends MigrationAbstract {
                     die ("Please set length for table: {$name} - column: {$name}");
                 }
             }
-            if (isset($v['unsigned']) && $v['unsigned'] == true) $q .= " UNSIGNED";
-            if (!isset($v['null']) || $v['null'] == false) $q .= " NOT NULL";
+
+            if (isset($v['unsigned']) && $v['unsigned'] == true) {
+                $q .= " UNSIGNED";
+            }
+
+            if (!isset($v['null']) || $v['null'] == false) {
+                $q .= " NOT NULL";
+            }
+
             if (isset($v['default'])) {
-                if (is_string($v['default'])) $v['default'] = "'{$v['default']}'";
+                if (is_string($v['default'])) {
+                    $v['default'] = "'{$v['default']}'";
+                }
+
                 $q .= " DEFAULT {$v['default']}";
             }
 
-            if (isset($v['ai']) && $v['ai'] == true) $q .= " AUTO_INCREMENT";
-            if ((isset($v['unique']) && $v['unique'] == true) && (isset($v['primary']) && $v['primary'] == true)) die ("Unique or Primary?");
-            if (isset($v['unique']) && $v['unique'] == true) $q .= " UNIQUE";
-            if (isset($v['primary']) && $v['primary'] == true) $q .= " PRIMARY KEY";
-            if (isset($v['after'])) $q .= " AFTER {$v['after']}";
+            if (isset($v['ai']) && $v['ai'] == true) {
+                $q .= " AUTO_INCREMENT";
+            }
+
+            if ((isset($v['unique']) && $v['unique'] == true) && (isset($v['primary']) && $v['primary'] == true)) {
+                die ("Unique or Primary?");
+            }
+
+            if (isset($v['unique']) && $v['unique'] == true) {
+                $q .= " UNIQUE";
+            }
+
+            if (isset($v['primary']) && $v['primary'] == true) {
+                $q .= " PRIMARY KEY";
+            }
+
+            if (isset($v['after'])) {
+                $q .= " AFTER {$v['after']}";
+            }
 
         } else {
             die ("Please set type of column ");
@@ -166,7 +223,8 @@ class Migration extends MigrationAbstract {
      * @param string $name Column name
      * @return bool
      */
-    public function dropColumn($table, $name) {
+    public function dropColumn($table, $name)
+    {
         $q = "ALTER TABLE {$table} DROP COLUMN {$name}";
 
         return $this->executeQuery($q);
@@ -178,7 +236,8 @@ class Migration extends MigrationAbstract {
      * @param string $name Table name
      * @return bool
      */
-    public function dropTable($name) {
+    public function dropTable($name)
+    {
         $q = "DROP TABLE {$name}";
 
         return $this->executeQuery($q);
@@ -191,7 +250,8 @@ class Migration extends MigrationAbstract {
      * @param string $column Column name
      * @return bool
      */
-    public function addIndex($table, $column) {
+    public function addIndex($table, $column)
+    {
         $q = "ALTER TABLE {$table} ADD INDEX ({$column})";
 
         return $this->executeQuery($q);

@@ -8,15 +8,18 @@
  */
 
 namespace Core\Orm;
+
 use Core\Orm\Gateway\RowAbstract;
 
-class RowGateway extends RowAbstract {
+class RowGateway extends RowAbstract
+{
 
     /**
      * Save row (update)
      * @return $this
      */
-    public function save() {
+    public function save()
+    {
         $table = $this->table;
         $params = array();
 
@@ -24,10 +27,13 @@ class RowGateway extends RowAbstract {
         $iValue = 0;
 
         foreach ($this->_data as $key => $value) {
-            if ($key == $table->getPrimaryKey()) continue;
+            if ($key == $table->getPrimaryKey()) {
+                continue;
+            }
+
             $query .= "$key = :value$iValue, ";
             $params[":value$iValue"] = $value;
-            $iValue ++;
+            $iValue++;
         }
 
         $query = substr($query, 0, -2);
@@ -42,7 +48,8 @@ class RowGateway extends RowAbstract {
      * Get table
      * @return \Core\Orm\TableGateway
      */
-    public function getTable() {
+    public function getTable()
+    {
         return $this->table;
     }
 }

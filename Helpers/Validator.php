@@ -9,7 +9,8 @@
 
 namespace Core\Helpers;
 
-class Validator {
+class Validator
+{
     public static $regexes = Array(
         'date' => "^[0-9]{4}[-/][0-9]{1,2}[-/][0-9]{1,2}\$",
         'amount' => "^[-]?[0-9]+\$",
@@ -27,14 +28,15 @@ class Validator {
     );
 
     private $validations,
-            $sanatations,
-            $mandatories,
-            $errors,
-            $corrects,
-            $fields;
+        $sanatations,
+        $mandatories,
+        $errors,
+        $corrects,
+        $fields;
 
 
-    public function __construct($validations=array(), $mandatories = array(), $sanatations = array()) {
+    public function __construct($validations = array(), $mandatories = array(), $sanatations = array())
+    {
         $this->validations = $validations;
         $this->sanatations = $sanatations;
         $this->mandatories = $mandatories;
@@ -46,50 +48,51 @@ class Validator {
      * Validates an array of items (if needed) and returns true or false
      *
      */
-    public function validate($items) {
+    public function validate($items)
+    {
         $this->fields = $items;
         $havefailures = false;
-        foreach($items as $key=>$val) {
-            if((strlen($val) == 0 || array_search($key, $this->validations) === false) && array_search($key, $this->mandatories) === false)
-            {
+        foreach ($items as $key => $val) {
+            if ((strlen($val) == 0 || array_search($key, $this->validations) === false) && array_search($key, $this->mandatories) === false) {
                 $this->corrects[] = $key;
                 continue;
             }
             $result = self::validateItem($val, $this->validations[$key]);
-            if($result === false) {
+            if ($result === false) {
                 $havefailures = true;
                 $this->addError($key, $this->validations[$key]);
-            }
-            else
-            {
+            } else {
                 $this->corrects[] = $key;
             }
         }
 
-        return(!$havefailures);
+        return (!$havefailures);
     }
 
     /**
      *
-     *	Adds unvalidated class to thos elements that are not validated. Removes them from classes that are.
+     *    Adds unvalidated class to thos elements that are not validated. Removes them from classes that are.
      */
-    public function getScript() {
-        if(!empty($this->errors))
-        {
+    public function getScript()
+    {
+        if (!empty($this->errors)) {
             $errors = array();
-            foreach($this->errors as $key=>$val) { $errors[] = "'INPUT[name={$key}]'"; }
+            foreach ($this->errors as $key => $val) {
+                $errors[] = "'INPUT[name={$key}]'";
+            }
 
-            $output = '$$('.implode(',', $errors).').addClass("unvalidated");';
+            $output = '$$(' . implode(',', $errors) . ').addClass("unvalidated");';
             $output .= "alert('there are errors in the form');"; // or your nice validation here
         }
-        if(!empty($this->corrects))
-        {
+        if (!empty($this->corrects)) {
             $corrects = array();
-            foreach($this->corrects as $key) { $corrects[] = "'INPUT[name={$key}]'"; }
-            $output .= '$$('.implode(',', $corrects).').removeClass("unvalidated");';
+            foreach ($this->corrects as $key) {
+                $corrects[] = "'INPUT[name={$key}]'";
+            }
+            $output .= '$$(' . implode(',', $corrects) . ').removeClass("unvalidated");';
         }
         $output = "<script type='text/javascript'>{$output} </script>";
-        return($output);
+        return ($output);
     }
 
 
@@ -102,12 +105,11 @@ class Validator {
      */
     public function sanatize($items)
     {
-        foreach($items as $key=>$val)
-        {
-            if(array_search($key, $this->sanatations) === false && !array_key_exists($key, $this->sanatations)) continue;
+        foreach ($items as $key => $val) {
+            if (array_search($key, $this->sanatations) === false && !array_key_exists($key, $this->sanatations)) continue;
             $items[$key] = self::sanatizeItem($val, $this->validations[$key]);
         }
-        return($items);
+        return ($items);
     }
 
 
@@ -115,7 +117,7 @@ class Validator {
      *
      * Adds an error to the errors array.
      */
-    private function addError($field, $type='string')
+    private function addError($field, $type = 'string')
     {
         $this->errors[$field] = $type;
     }
@@ -128,8 +130,7 @@ class Validator {
     public static function sanatizeItem($var, $type)
     {
         $flags = NULL;
-        switch($type)
-        {
+        switch ($type) {
             case 'url':
                 $filter = FILTER_SANITIZE_URL;
                 break;
@@ -152,7 +153,7 @@ class Validator {
 
         }
         $output = filter_var($var, $filter, $flags);
-        return($output);
+        return ($output);
     }
 
     /**
@@ -163,14 +164,12 @@ class Validator {
      */
     public static function validateItem($var, $type)
     {
-        if(array_key_exists($type, self::$regexes))
-        {
-            $returnval =  filter_var($var, FILTER_VALIDATE_REGEXP, array("options"=> array("regexp"=>'!'.self::$regexes[$type].'!i'))) !== false;
-            return($returnval);
+        if (array_key_exists($type, self::$regexes)) {
+            $returnval = filter_var($var, FILTER_VALIDATE_REGEXP, array("options" => array("regexp" => '!' . self::$regexes[$type] . '!i'))) !== false;
+            return ($returnval);
         }
         $filter = false;
-        switch($type)
-        {
+        switch ($type) {
             case 'email':
                 $var = substr($var, 0, 254);
                 $filter = FILTER_VALIDATE_EMAIL;

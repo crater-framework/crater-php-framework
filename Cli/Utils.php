@@ -9,7 +9,8 @@
 
 namespace Core\Cli;
 
-class Utils {
+class Utils
+{
 
     /**
      * Set background color of text
@@ -18,9 +19,10 @@ class Utils {
      * @return string
      * @throws Exception
      */
-    public static function colorize($text, $status) {
+    public static function colorize($text, $status)
+    {
         $out = "";
-        switch($status) {
+        switch ($status) {
             case "SUCCESS":
                 $out = "[42m"; //Green background
                 break;

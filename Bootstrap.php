@@ -8,14 +8,17 @@
  */
 
 namespace Core;
+
 use \Core\Router,
     \Core\Console;
 
-class Bootstrap {
+class Bootstrap
+{
 
     protected $consoleArguments;
 
-    public function __construct($arguments) {
+    public function __construct($arguments)
+    {
 
         $config = new \Core\Config();
         $config->globalInit();
@@ -24,7 +27,7 @@ class Bootstrap {
             array_shift($arguments);
             $this->consoleArguments = $arguments;
             $this->initConsole();
-        }  else {
+        } else {
             $this->initRouter();
         }
     }
@@ -33,7 +36,8 @@ class Bootstrap {
     /**
      * Initialize the console
      */
-    protected function initConsole() {
+    protected function initConsole()
+    {
         $consoles = $this->setConsoles();
         foreach ($consoles as $console) {
 
@@ -49,7 +53,8 @@ class Bootstrap {
     /**
      * Initialize the router
      */
-    protected function initRouter() {
+    protected function initRouter()
+    {
 
         // Get all routes from local bootstrap
         $routes = $this->setRoutes();

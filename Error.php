@@ -8,55 +8,60 @@
  */
 
 namespace Core;
+
 use Core\Controller,
     Core\View;
 
-class Error extends Controller {
+class Error extends Controller
+{
 
-	private $_error = null;
+    private $_error = null;
 
-	public function __construct($error){
-		parent::__construct();
-		$this->_error = $error;
-	}
-
-
-	/**
-	 * 404 page Action
-	 * load a 404 page with the error message
-	 */
-	public function indexAction(){
-
-		header("HTTP/1.0 404 Not Found");
-		
-		$data['title'] = '404';
-		$data['error'] = $this->_error;
-
-		$this->view->render('error/404', $data);
-	}
+    public function __construct($error)
+    {
+        parent::__construct();
+        $this->_error = $error;
+    }
 
 
-	/**
-	 * Display errors
-	 * @param mixed $errors Error/s array
-	 * @param string $class Name of class to apply to div
-	 * @return mixed Return div/s
-	 */
-	public static function display($errors, $class = 'alert alert-danger'){
-		if (is_array($errors)){
+    /**
+     * 404 page Action
+     * load a 404 page with the error message
+     */
+    public function indexAction()
+    {
 
-			foreach($errors as $error){
-				$row.= "<div class='$class'>$error</div>";
-			}
-			return $row;
+        header("HTTP/1.0 404 Not Found");
 
-		} else {
+        $data['title'] = '404';
+        $data['error'] = $this->_error;
 
-			if(isset($errors)){
-				return "<div class='$class'>$errors</div>";
-			}
+        $this->view->render('error/404', $data);
+    }
 
-			return false;
-		}
-	}
+
+    /**
+     * Display errors
+     * @param mixed $errors Error/s array
+     * @param string $class Name of class to apply to div
+     * @return mixed Return div/s
+     */
+    public static function display($errors, $class = 'alert alert-danger')
+    {
+        if (is_array($errors)) {
+
+            foreach ($errors as $error) {
+                $row .= "<div class='$class'>$error</div>";
+            }
+            return $row;
+
+        } else {
+
+            if (isset($errors)) {
+                return "<div class='$class'>$errors</div>";
+            }
+
+            return false;
+        }
+    }
 }

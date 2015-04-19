@@ -8,16 +8,19 @@
  */
 
 namespace Core\Orm;
+
 use Core\Orm\Gateway\TableAbstract;
 
-class TableGateway extends TableAbstract {
+class TableGateway extends TableAbstract
+{
 
     /**
      * Create new row
      * @param array $data Array with data ('column_name' => 'foo')
      * @return $this
      */
-    public function insert(array $data) {
+    public function insert(array $data)
+    {
         $params = array();
         $query = "INSERT INTO $this->_name (";
 
@@ -33,7 +36,7 @@ class TableGateway extends TableAbstract {
         foreach ($data as $key => $value) {
             $query .= ":value$iValue, ";
             $params[":value$iValue"] = $value;
-            $iValue ++;
+            $iValue++;
         }
 
         $query = substr($query, 0, -2);
@@ -48,7 +51,8 @@ class TableGateway extends TableAbstract {
      * @param mixed $primaryKey Primary key value
      * @return $this
      */
-    public function find($primaryKey){
+    public function find($primaryKey)
+    {
         $where = array(
             $this->_primary => $primaryKey
         );
@@ -58,7 +62,10 @@ class TableGateway extends TableAbstract {
         $className = $this->_rowClass;
         $class = new $className($this);
 
-        if (!$row) return false;
+        if (!$row) {
+            return false;
+        }
+
         $class->setData($row);
 
         return $class;
@@ -72,14 +79,18 @@ class TableGateway extends TableAbstract {
      * @param array $order Array with order condition ('first_name, last_name' => 'DESC')
      * @return $this
      */
-    public function fetchRow(array $where = null, array $column = null, array $order = null){
+    public function fetchRow(array $where = null, array $column = null, array $order = null)
+    {
         $qp = $this->_fetch($where, $column, $order);
 
         $row = $this->_fetchRow($qp['query'], $qp['params']);
         $className = $this->_rowClass;
         $class = new $className($this);
 
-        if (!$row) return false;
+        if (!$row) {
+            return false;
+        }
+
         $class->setData($row);
 
         return $class;
@@ -95,11 +106,14 @@ class TableGateway extends TableAbstract {
      * @param bool $lazy Lazy return. If this is true, the response will be an array
      * @return mixed
      */
-    public function fetchAll(array $where = null, array $column = null, array $order = null, $limit = null, $lazy = false){
+    public function fetchAll(array $where = null, array $column = null, array $order = null, $limit = null, $lazy = false)
+    {
         $qp = $this->_fetch($where, $column, $order, $limit);
         $rows = $this->_fetchAll($qp['query'], $qp['params']);
 
-        if (!$rows) return false;
+        if (!$rows) {
+            return false;
+        }
 
         if (!$lazy) {
             $hydratedRows = array();

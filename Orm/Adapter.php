@@ -8,9 +8,11 @@
  */
 
 namespace Core\Orm;
+
 use \PDO;
 
-class Adapter {
+class Adapter
+{
 
     /**
      * @var array Array of saved databases for reusing
@@ -21,7 +23,8 @@ class Adapter {
     /**
      * Static method get
      */
-    public static function get () {
+    public static function get()
+    {
         $config = new \Core\Config();
         $cfg = $config->getConfig();
 
@@ -36,7 +39,7 @@ class Adapter {
         $id = "$type.$host.$name.$user.$pass";
 
         // Checking if the same
-        if(isset(self::$instances[$id])) {
+        if (isset(self::$instances[$id])) {
             return self::$instances[$id];
         }
 
@@ -48,10 +51,13 @@ class Adapter {
             self::$instances[$id] = $instance;
 
             return $instance;
-        } catch(PDOException $e){
+
+        } catch (PDOException $e) {
             // In the event of an error record the error to errorlog.html
             \Core\Logger::newMessage($e);
             \Core\Logger::customErrorMsg();
         }
+
+        return false;
     }
 }

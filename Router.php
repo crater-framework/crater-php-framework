@@ -10,230 +10,235 @@
 
 namespace Core;
 
-class Router {
+class Router
+{
+
+    // If true - do not process other routes when match is found
+    public static $halts = true;
+
+    // Set routes, methods and etc.
+    public static $routes = array();
+    public static $methods = array();
+    public static $callbacks = array();
+    public static $errorCallback;
+
+    // Set route patterns
+    public static $patterns = array(
+        ':any' => '[^/]+',
+        ':num' => '[0-9]+',
+        ':all' => '.*'
+    );
+
+
+    /**
+     * Defines a route w/ callback and method
+     *
+     * @param   string $method
+     * @param   array @params
+     */
+    public static function __callstatic($method, $params)
+    {
+
+        $uri = dirname($_SERVER['PHP_SELF']) . '/' . $params[0];
+
+        $callback = $params[1];
+
+        array_push(self::$routes, $uri);
+        array_push(self::$methods, strtoupper($method));
+        array_push(self::$callbacks, $callback);
+    }
+
+
+    /**
+     * Defines callback if route is not found
+     * @param   string $callback
+     */
+    public static function error($callback)
+    {
+        self::$errorCallback = $callback;
+    }
+
 
-	// If true - do not process other routes when match is found
-	public static $halts = true;
+    /**
+     * Don't load any further routes on match
+     * @param  boolean $flag
+     */
+    public static function haltOnMatch($flag = true)
+    {
+        self::$halts = $flag;
+    }
 
-	// Set routes, methods and etc.
-	public static $routes = array();
-	public static $methods = array();
-	public static $callbacks = array();
-	public static $error_callback;
-
-	// Set route patterns
-	public static $patterns = array(
-		':any' => '[^/]+',
-		':num' => '[0-9]+',
-		':all' => '.*'
-	);
-
-
-	/**
-	 * Defines a route w/ callback and method
-	 *
-	 * @param   string $method
-	 * @param   array @params
-	 */
-	public static function __callstatic($method, $params){
-
-		$uri = dirname($_SERVER['PHP_SELF']).'/'.$params[0];
-
-		$callback = $params[1];
-
-		array_push(self::$routes, $uri);
-		array_push(self::$methods, strtoupper($method));
-		array_push(self::$callbacks, $callback);
-	}
-
 
-	/**
-	 * Defines callback if route is not found
-	 * @param   string $callback
-	 */
-	public static function error($callback){
-		self::$error_callback = $callback;
-	}
+    /**
+     * Call object and instantiate
+     *
+     * @param  object $callback
+     * @param  array $matched array of matched parameters
+     * @param  string $msg
+     */
+    public static function invokeObject($callback, $matched = null, $msg = null)
+    {
 
+        // Grab all parts based on a / separator and collect the last index of the array
+        $last = explode('/', $callback);
+        $last = end($last);
+        // Grab the controller name and method call
+        $segments = explode('@', $last);
 
-	/**
-	 * Don't load any further routes on match
-	 * @param  boolean $flag 
-	 */
-	public static function haltOnMatch($flag = true){
-		self::$halts = $flag;
-	}
+        // Compiled action name
+        $segments[1] = $segments[1] . 'Action';
 
+        // Instanitate controller with optional msg (used for error_callback)
 
-	/**
-	 * Call object and instantiate
-	 *
-	 * @param  object $callback 
-	 * @param  array $matched  array of matched parameters
-	 * @param  string $msg      
-	 */
-	public static function invokeObject($callback,$matched = null,$msg = null){
 
-		// Grab all parts based on a / separator and collect the last index of the array
-		$last = explode('/',$callback);
-		$last = end($last);
-		// Grab the controller name and method call
-		$segments = explode('@',$last);
+        $controller = new $segments[0]($msg);
+        $controller->setControllerName($segments[1]);
 
-		// Compiled action name
-		$segments[1] = $segments[1].'Action';
+        if ($matched == null) {
+            $controller->$segments[1]();
+        } else {
+            // Call method and pass in array keys as params
+            call_user_func_array(array($controller, $segments[1]), $matched);
+        }
+    }
 
-		// Instanitate controller with optional msg (used for error_callback)
 
+    /**
+     * Runs the callback for the given request
+     */
+    public static function dispatch()
+    {
 
-		$controller = new $segments[0]($msg);
-		$controller->setControllerName($segments[1]);
+        $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $method = $_SERVER['REQUEST_METHOD'];
 
-		if($matched == null){
-			$controller->$segments[1]();
-		} else {
-			// Call method and pass in array keys as params
-			call_user_func_array(array($controller, $segments[1]), $matched);
-		}
-	}
+        $searches = array_keys(static::$patterns);
+        $replaces = array_values(static::$patterns);
 
+        self::$routes = str_replace('//', '/', self::$routes);
 
-	/**
-	 * Runs the callback for the given request
-	 */
-	public static function dispatch(){
+        $foundRoute = false;
 
-		$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-		$method = $_SERVER['REQUEST_METHOD'];  
+        // Parse query parameters
+        {
+            $query = '';
+            $q_arr = array();
+            if (strpos($uri, '&') > 0) {
+                $query = substr($uri, strpos($uri, '&') + 1);
+                $uri = substr($uri, 0, strpos($uri, '&'));
+                $q_arr = explode('&', $query);
+                foreach ($q_arr as $q) {
+                    $qobj = explode('=', $q);
+                    $q_arr[] = array($qobj[0] => $qobj[1]);
+                    if (!isset($_GET[$qobj[0]])) {
+                        $_GET[$qobj[0]] = $qobj[1];
+                    }
+                }
+            }
+        }
 
-		$searches = array_keys(static::$patterns);
-		$replaces = array_values(static::$patterns);
+        // Check if route is defined without regex
 
-		self::$routes = str_replace('//','/',self::$routes);
+        if (in_array($uri, self::$routes)) {
 
-		$found_route = false;
+            $routePos = array_keys(self::$routes, $uri);
 
-		// Parse query parameters
-		{
-			$query = '';
-			$q_arr = array();
-			if(strpos($uri, '&') > 0) {
-				$query = substr($uri, strpos($uri, '&') + 1);
-				$uri = substr($uri, 0, strpos($uri, '&'));
-				$q_arr = explode('&', $query);
-				foreach($q_arr as $q) {
-					$qobj = explode('=', $q);
-					$q_arr[] = array($qobj[0] => $qobj[1]);
-					if(!isset($_GET[$qobj[0]]))
-					{
-						$_GET[$qobj[0]] = $qobj[1];
-					}
-				}
-			}
-		}
+            // Foreach route position
+            foreach ($routePos as $route) {
 
-		// Check if route is defined without regex
+                if (self::$methods[$route] == $method || self::$methods[$route] == 'ANY') {
+                    $foundRoute = true;
 
-		if (in_array($uri, self::$routes)) {
+                    // If route is not an object
 
-			$route_pos = array_keys(self::$routes, $uri);
+                    if (!is_object(self::$callbacks[$route])) {
 
-			// Foreach route position
-			foreach ($route_pos as $route) {
+                        // Call object controller and method
 
-				if (self::$methods[$route] == $method || self::$methods[$route] == 'ANY') {
-					$found_route = true;
+                        self::invokeObject(self::$callbacks[$route]);
+                        if (self::$halts) return;
 
-					// If route is not an object
+                    } else {
 
-					if(!is_object(self::$callbacks[$route])){
+                        // Call closure
 
-						// Call object controller and method
+                        call_user_func(self::$callbacks[$route]);
+                        if (self::$halts) return;
 
-						self::invokeObject(self::$callbacks[$route]);
-						if (self::$halts) return;
+                    }
+                }
 
-					} else {
+            }
 
-						// Call closure
+        } else {
 
-						call_user_func(self::$callbacks[$route]);
-						if (self::$halts) return;
+            // Check if defined with regex
+            $pos = 0;
 
-					}
-				}
+            // Foreach routes
 
-			}
+            foreach (self::$routes as $route) {
 
-		} else {
+                $route = str_replace('//', '/', $route);
 
-			// Check if defined with regex
-			$pos = 0;
+                if (strpos($route, ':') !== false) {
+                    $route = str_replace($searches, $replaces, $route);
+                }
 
-			// Foreach routes
+                if (preg_match('#^' . $route . '$#', $uri, $matched)) {
 
-			foreach (self::$routes as $route) {
+                    if (self::$methods[$pos] == $method || self::$methods[$pos] == 'ANY') {
+                        $foundRoute = true;
 
-				$route = str_replace('//','/',$route);
+                        // Remove $matched[0] as [1] is the first parameter.
 
-				if (strpos($route, ':') !== false) {
-					$route = str_replace($searches, $replaces, $route);
-				}
+                        array_shift($matched);
 
-				if (preg_match('#^' . $route . '$#', $uri, $matched)) {
+                        if (!is_object(self::$callbacks[$pos])) {
 
-					if (self::$methods[$pos] == $method || self::$methods[$pos] == 'ANY') {
-						$found_route = true; 
+                            // Call object controller and method
 
-						// Remove $matched[0] as [1] is the first parameter.
+                            self::invokeObject(self::$callbacks[$pos], $matched);
+                            if (self::$halts) return;
 
-						array_shift($matched);
+                        } else {
 
-						if(!is_object(self::$callbacks[$pos])){
+                            // Call closure
+                            call_user_func_array(self::$callbacks[$pos], $matched);
+                            if (self::$halts) return;
 
-							// Call object controller and method
+                        }
+                    }
+                }
 
-							self::invokeObject(self::$callbacks[$pos],$matched);
-							if (self::$halts) return;
+                $pos++;
+            }
+        }
 
-						} else {
+        // Run the error callback if the route was not found
 
-							// Call closure
-							call_user_func_array(self::$callbacks[$pos], $matched);
-							if (self::$halts) return;
+        if (!$foundRoute) {
 
-						}
-					}
-				}
+            if (!self::$errorCallback) {
 
-				$pos++;
-			}
-		}
+                self::$errorCallback = function () {
+                    header($_SERVER['SERVER_PROTOCOL'] . " 404 Not Found");
+                    echo '404';
+                };
+            }
 
-		// Run the error callback if the route was not found
+            if (!is_object(self::$errorCallback)) {
 
-		if (!$found_route) {
+                // Call object controller and method
+                self::invokeObject(self::$errorCallback, null, 'No routes found.');
+                if (self::$halts) return;
 
-			if (!self::$error_callback) {
+            } else {
 
-				self::$error_callback = function() {
-					header($_SERVER['SERVER_PROTOCOL']." 404 Not Found");
-					echo '404';
-				};
-			} 
+                call_user_func(self::$errorCallback);
+                if (self::$halts) return;
 
-			if(!is_object(self::$error_callback)){
-
-				// Call object controller and method
-				self::invokeObject(self::$error_callback, null, 'No routes found.');
-				if (self::$halts) return;
-
-			} else {
-
-				call_user_func(self::$error_callback);
-				if (self::$halts) return;
-
-			}
-		}
-	}
+            }
+        }
+    }
 }

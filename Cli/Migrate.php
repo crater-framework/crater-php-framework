@@ -8,12 +8,14 @@
  */
 
 namespace Core\Cli;
+
 use Core\Migration,
     Core\Cli\Utils,
     Core\Config,
     Core\Orm\QueryBuilder;
 
-class Migrate {
+class Migrate
+{
 
     /**
      * @var array $arguments Command line arguments
@@ -23,7 +25,8 @@ class Migrate {
     protected $migrateManager;
     public $table;
 
-    public function __construct($arguments) {
+    public function __construct($arguments)
+    {
 
         $config = new Config();
         $this->table = (isset($config->getConfig()['settings_table'])) ? $config->getConfig()['settings_table'] : "crt_settings";
@@ -49,7 +52,8 @@ class Migrate {
     /**
      * Generate new migration file
      */
-    public function newMigration() {
+    public function newMigration()
+    {
         $fileName = (isset($this->arguments[1])) ? $this->arguments[1] : null;
         $this->migrateManager->newMigration($fileName);
     }
@@ -59,7 +63,8 @@ class Migrate {
      * Initialize migration
      * @throws Exception
      */
-    public function init() {
+    public function init()
+    {
         $select = new QueryBuilder();
 
         $select
@@ -84,7 +89,8 @@ class Migrate {
     /**
      * Get current version of database
      */
-    private function getVersion() {
+    private function getVersion()
+    {
         $select = new QueryBuilder();
         $versionRow = $select
             ->query("SELECT value FROM {$this->table} WHERE param = 'migration_version'")
@@ -100,7 +106,8 @@ class Migrate {
      * @param string $version Version number
      * @return bool
      */
-    private function setVersion($version) {
+    private function setVersion($version)
+    {
         $select = new QueryBuilder();
         $select
             ->query("UPDATE {$this->table} SET value = {$version} WHERE param = 'migration_version'")
@@ -114,15 +121,16 @@ class Migrate {
      * @return array
      * @throws Exception
      */
-    private function getMigrationsFiles() {
+    private function getMigrationsFiles()
+    {
         $migrationPath = $this->migrateManager->storagePath;
         $files = array();
         if ($handle = opendir($migrationPath)) {
 
             while (false !== ($entry = readdir($handle))) {
 
-                if ($entry != "." && $entry != ".." && is_file($migrationPath.'/'.$entry)) {
-                    $segments = explode('_',$entry);
+                if ($entry != "." && $entry != ".." && is_file($migrationPath . '/' . $entry)) {
+                    $segments = explode('_', $entry);
                     $files[$segments[0]] = $entry;
                 }
             }
@@ -132,7 +140,7 @@ class Migrate {
             return $files;
         }
 
-        die (Utils::colorize("Error to open migrations storage","FAILURE"));
+        die (Utils::colorize("Error to open migrations storage", "FAILURE"));
     }
 
 
@@ -140,7 +148,8 @@ class Migrate {
      * Install all the migration files
      * @throws Exception
      */
-    public function apply() {
+    public function apply()
+    {
 
         $files = $this->getMigrationsFiles();
         $lastMigration = null;
@@ -149,7 +158,7 @@ class Migrate {
 
         foreach ($files as $key => $value) {
             if ($key <= $this->getVersion()) continue;
-            include $this->migrateManager->storagePath.'/'.$value;
+            include $this->migrateManager->storagePath . '/' . $value;
             $className = "Migration_$key";
             $class = new $className();
             $class->up();
@@ -172,7 +181,8 @@ class Migrate {
      * @param string $version Version number
      * @throws Exception
      */
-    public function rollback($version) {
+    public function rollback($version)
+    {
         $files = $this->getMigrationsFiles();
         $lastMigration = null;
 
@@ -180,7 +190,7 @@ class Migrate {
 
         foreach ($files as $key => $value) {
             if ($key < $version) continue;
-            include $this->migrateManager->storagePath.'/'.$value;
+            include $this->migrateManager->storagePath . '/' . $value;
             $className = "Migration_$key";
             $class = new $className();
             $class->down();
