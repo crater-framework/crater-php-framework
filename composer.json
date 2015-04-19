@@ -1,0 +1,19 @@
+{
+    "name": "crater-php-framework/crater-php-framework",
+    "description": "Crater PHP Framework Crater PHP",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Dragos Ionita",
+            "email": "shellsoftidc@yahoo.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.23"
+    },
+    "autoload": {
+        "psr-4": {
+            "Core\\": "Core/"
+        }
+    }
+}
