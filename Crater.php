@@ -21,7 +21,8 @@ class Crater {
             if ($lib) {
                 $lib = str_replace("\\", "/", $lib);
                 $namespace = explode('/',trim($lib));
-                $dir = dirname(__DIR__). '/';
+                $dir = '../';
+
                 if ($namespace[0] == 'Controllers' ||
                     $namespace[0] == 'Models') {
                     $dir .= 'App/';
@@ -31,7 +32,7 @@ class Crater {
 
         });
 
-        if (!is_readable(dirname(__DIR__) . '/App/Config/global.php')) {
+        if (!is_readable( '../App/Config/global.php')) {
             die('No global.php found, configure and rename global.example.php to global.php in App/Config.');
         }
     }

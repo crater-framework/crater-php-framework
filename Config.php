@@ -59,8 +59,8 @@ class Config {
      */
     public function fileParser() {
 
-        $globalFile = dirname(__DIR__) .'/App/Config/global.php';
-        $localFile = dirname(__DIR__) .'/App/Config/local.php';
+        $globalFile = '../App/Config/global.php';
+        $localFile = '../App/Config/local.php';
 
         $data = $global = include($globalFile);
 

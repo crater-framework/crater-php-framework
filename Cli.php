@@ -20,14 +20,7 @@ class Cli {
     public $arguments;
 
     public function __construct($arguments) {
-
-        spl_autoload_register(function($lib){
-            if ($lib) {
-                $lib = str_replace("\\", "/", $lib);
-                $dir = dirname(__DIR__). '/';
-                include $dir .$lib . ".php" ;
-            }
-        });
+        require_once __DIR__. '/../../autoload.php';
 
         // Remove file name
         array_shift($arguments);

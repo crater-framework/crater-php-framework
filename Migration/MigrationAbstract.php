@@ -18,7 +18,7 @@ abstract class MigrationAbstract {
     public $storagePath = null;
 
     public function __construct(){
-        $this->storagePath = dirname(dirname(__DIR__)) . '/App/Data/Migrations';
+        $this->storagePath = dirname(dirname(dirname(dirname(__DIR__)))) . '/App/Data/Migrations';
     }
 
     /**

@@ -24,8 +24,7 @@ class Build {
     private $appPath;
 
     public function __construct($arguments) {
-
-        $this->appPath = dirname(dirname(__DIR__)) . '/App';
+        $this->appPath = dirname(dirname(dirname(dirname(__DIR__)))) . '/App';
 
         array_shift($arguments);
         $this->arguments = $arguments;

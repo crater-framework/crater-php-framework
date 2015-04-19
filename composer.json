@@ -1,19 +1,20 @@
 {
     "name": "crater-php-framework/crater-php-framework",
-    "description": "Crater PHP Framework Crater PHP",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Dragos Ionita",
-            "email": "shellsoftidc@yahoo.com"
-        }
+    "description": "Crater PHP Framework Core",
+    "type": "library",
+    "keywords": [
+        "framework",
+        "crater",
+        "mvc"
     ],
+    "license": "MIT",
+    "homepage": "http://crater-framework.github.io/",
     "require": {
         "php": ">=5.3.23"
     },
     "autoload": {
         "psr-4": {
-            "Core\\": "Core/"
+            "Core\\": "/"
         }
     }
 }

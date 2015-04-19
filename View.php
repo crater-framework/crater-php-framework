@@ -70,7 +70,7 @@ class View {
         }
 
         $this->view = $view;
-        $path = dirname(__DIR__). '/App/' . $this->templatesDir.$this->template . '.phtml';
+        $path = '../App/' . $this->templatesDir.$this->template . '.phtml';
 
         if (file_exists($path)) {
             require $path;
@@ -87,7 +87,7 @@ class View {
      * @return string
      */
     public function content() {
-        $path = dirname(__DIR__). '/App/' . $this->viewsDir.$this->view . '.phtml';
+        $path = '../App/' . $this->viewsDir.$this->view . '.phtml';
         if (file_exists($path)) {
             require $path;
 
@@ -101,7 +101,7 @@ class View {
      * @return string
      */
     public function partial($view) {
-        $path = dirname(__DIR__). '/App/' . $this->viewsDir.$view . '.phtml';
+        $path = '../App/' . $this->viewsDir.$view . '.phtml';
         if (file_exists($path)) {
             require $path;
 

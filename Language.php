@@ -35,7 +35,7 @@ class Language {
 		if (is_null($code) or !$code) $code = self::$_languageCode;
 
 		// Lang file
-		$file = dirname(__DIR__) . "/App/Language/$code/$name.php";
+		$file = "../App/Language/$code/$name.php";
 
 		// Check if is readable
 		if(is_readable($file)){
@@ -82,7 +82,7 @@ class Language {
 		if (is_null($code)) $code = self::$_languageCode;
 
 		// Lang file
-		$file = dirname(__DIR__) . "/App/Language/$code/$name.php";
+		$file = "../App/Language/$code/$name.php";
 
 		// Check if is readable
 		if(is_readable($file)){

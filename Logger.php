@@ -12,7 +12,7 @@ namespace Core;
 class Logger {
 
 	private static $print_error = true;
-	private static $errorFile = '/App/errorlog.html';
+	private static $errorFile = '/App/Data/errorlog.html';
 
 
 	public static function customErrorMsg() {
@@ -64,7 +64,7 @@ class Logger {
 		$line = $exception->getLine();
 		$trace = $exception->getTraceAsString();
 		$date = date('M d, Y G:iA');
-		$errorFilePath = dirname(__DIR__).self::$errorFile;
+		$errorFilePath = dirname(dirname(dirname(__DIR__))).self::$errorFile;
 		$log_message = "<h3>Exception information:</h3>\n
 		<p><strong>Date:</strong> {$date}</p>\n
 		<p><strong>Message:</strong> {$message}</p>\n
@@ -100,7 +100,7 @@ class Logger {
 		$date = date('M d, Y G:iA');
 		$log_message = "<p>Error on $date - $error</p><br>\r\n";
 
-		$errorFilePath = dirname(__DIR__).self::$errorFile;
+		$errorFilePath = dirname(dirname(dirname(__DIR__))).self::$errorFile;
 
 		if( is_file($errorFilePath) === false ) {
 			file_put_contents($errorFilePath, '');
