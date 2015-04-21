@@ -17,7 +17,7 @@ class TableGateway extends TableAbstract
     /**
      * Create new row
      * @param array $data Array with data ('column_name' => 'foo')
-     * @return $this
+     * @return \Core\Orm\RowGateway | bool
      */
     public function insert(array $data)
     {
@@ -49,7 +49,7 @@ class TableGateway extends TableAbstract
     /**
      * Find a row by primary key
      * @param mixed $primaryKey Primary key value
-     * @return $this
+     * @return \Core\Orm\RowGateway | bool
      */
     public function find($primaryKey)
     {
@@ -77,7 +77,7 @@ class TableGateway extends TableAbstract
      * @param array $where Where conditions array
      * @param array $column Array with columns that you want.
      * @param array $order Array with order condition ('first_name, last_name' => 'DESC')
-     * @return $this
+     * @return \Core\Orm\RowGateway
      */
     public function fetchRow(array $where = null, array $column = null, array $order = null)
     {
@@ -104,7 +104,7 @@ class TableGateway extends TableAbstract
      * @param array $order Array with order condition ('first_name, last_name' => 'DESC')
      * @param string $limit String with limit value
      * @param bool $lazy Lazy return. If this is true, the response will be an array
-     * @return mixed
+     * @return array | bool
      */
     public function fetchAll(array $where = null, array $column = null, array $order = null, $limit = null, $lazy = false)
     {
@@ -127,5 +127,41 @@ class TableGateway extends TableAbstract
             return $hydratedRows;
         }
         return $rows;
+    }
+
+
+    /**
+     * Delete a row or rowset
+     * @param array $where
+     * @return bool
+     */
+    public function delete(array $where)
+    {
+        if (!$where) {
+            die ('Where is required!');
+        }
+
+        return $this->_delete($where);
+    }
+
+
+    /**
+     * Update a row or rowset
+     *
+     * @param array $data Data array
+     * @param array $where Where conditions array
+     * @return bool
+     */
+    public function update(array $data, array $where)
+    {
+        if (!$where) {
+            die ('Where is required');
+        }
+
+        if (!$data) {
+            die ('Data is required');
+        }
+
+        return $this->_update($data, $where);
     }
 }

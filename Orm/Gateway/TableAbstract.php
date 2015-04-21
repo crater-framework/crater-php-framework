@@ -216,6 +216,7 @@ abstract class TableAbstract
     /*
      * Parent of insert() function
      * @param string $query Query string
+     * @return \Core\Orm\RowGateway | bool
      */
     protected function _insert($query, $params)
     {
@@ -239,6 +240,109 @@ abstract class TableAbstract
 
             return $row;
         }
+        return false;
+    }
+
+    /**
+     * Delete a row or rowset
+     *
+     * @param array $where Where conditions array
+     * @return bool
+     */
+    protected function _delete($where)
+    {
+        $params = array();
+        $query = "DELETE FROM $this->_name";
+
+        $iWhere = 0;
+        $query .= " WHERE (";
+        foreach ($where as $key => $value) {
+            if (!is_int($key)) {
+                $query .= "$key = :where$iWhere AND ";
+                $params[":where$iWhere"] = $value;
+                $iWhere++;
+            } else {
+                $query .= "$value AND";
+            }
+        }
+        $query = substr($query, 0, -4);
+        $query .= ")";
+
+        $db = $this->db;
+        $sth = $db->prepare($query);
+
+        foreach ($params as $key => $val) {
+            if (is_int($val)) {
+                $sth->bindValue("$key", $val, $db::PARAM_INT);
+            } else {
+                $sth->bindValue("$key", $val);
+            }
+        }
+
+        $response = $sth->execute();
+
+        if ($response) {
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Update a row or rowset
+     *
+     * @param array $data Data array
+     * @param array $where Where conditions array
+     * @return bool
+     */
+    protected function _update($data, $where)
+    {
+        $params = array();
+        $query = "UPDATE $this->_name SET ";
+
+        $iSet = 0;
+        foreach ($data as $key => $value) {
+            $query .= "$key = :set$iSet, ";
+            $params[":set$iSet"] = $value;
+            $iSet++;
+        }
+
+        $query = substr($query, 0, -2);
+        $iWhere = 0;
+        $query .= " WHERE (";
+        foreach ($where as $key => $value) {
+            if (!is_int($key)) {
+                $query .= "$key = :where$iWhere AND ";
+                $params[":where$iWhere"] = $value;
+                $iWhere++;
+            } else {
+                $query .= "$value AND";
+            }
+        }
+
+        $query = substr($query, 0, -4);
+        $query .= ")";
+
+        $db = $this->db;
+        $sth = $db->prepare($query);
+
+        foreach ($params as $key => $val) {
+            if (is_int($val)) {
+                $sth->bindValue("$key", $val, $db::PARAM_INT);
+            } else {
+                $sth->bindValue("$key", $val);
+            }
+        }
+
+        $response = $sth->execute();
+
+        if ($response) {
+
+            return true;
+        }
+
         return false;
     }
 }

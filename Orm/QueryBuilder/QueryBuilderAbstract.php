@@ -27,6 +27,11 @@ abstract class QueryBuilderAbstract
         $this->db = Adapter::get();
     }
 
+
+    /**
+     * Make Query
+     * @return array
+     */
     public function makeQuery()
     {
         $data = $this->q;
@@ -127,6 +132,11 @@ abstract class QueryBuilderAbstract
         return ['query' => $query, 'params' => $params];
     }
 
+
+    /**
+     * Execute Query
+     * @return \PDOStatement
+     */
     public function execute()
     {
         $db = $this->db;
@@ -152,6 +162,11 @@ abstract class QueryBuilderAbstract
         return $sth;
     }
 
+
+    /**
+     * FetchAll method
+     * @return array
+     */
     public function fetchAll()
     {
         $sth = $this->execute();
@@ -160,6 +175,11 @@ abstract class QueryBuilderAbstract
         return $sth->fetchAll($db::FETCH_ASSOC);
     }
 
+
+    /**
+     * FetchRow method
+     * @return mixed
+     */
     public function fetchRow()
     {
         $sth = $this->execute();

@@ -16,7 +16,7 @@ class RowGateway extends RowAbstract
 
     /**
      * Save row (update)
-     * @return $this
+     * @return $this | bool
      */
     public function save()
     {
@@ -37,10 +37,26 @@ class RowGateway extends RowAbstract
         }
 
         $query = substr($query, 0, -2);
-        $valId = $this->_data[$table->getPrimaryKey()];
-        $query .= " WHERE {$table->getPrimaryKey()} = $valId";
+        $pk = $this->_data[$table->getPrimaryKey()];
+        $query .= " WHERE {$table->getPrimaryKey()} = $pk";
 
         return $this->_save($query, $params);
+    }
+
+
+    /**
+     * Delete current row
+     * @return bool
+     */
+    public function delete()
+    {
+        $table = $this->table;
+        $pk = $this->_data[$table->getPrimaryKey()];
+
+        $query = "DELETE FROM {$table->getTableName()} WHERE ";
+        $query .= "{$table->getPrimaryKey()} = $pk";
+
+        return $this->_delete($query);
     }
 
 

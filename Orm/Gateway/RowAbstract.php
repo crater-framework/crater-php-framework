@@ -63,6 +63,11 @@ abstract class RowAbstract
     }
 
 
+    /**
+     * @param $key
+     * @param $value
+     * @return $this
+     */
     public function __set($key, $value)
     {
         $table = $this->table;
@@ -81,6 +86,10 @@ abstract class RowAbstract
     }
 
 
+    /**
+     * @param $key
+     * @return mixed
+     */
     public function __get($key)
     {
         $table = $this->table;
@@ -101,7 +110,7 @@ abstract class RowAbstract
     /**
      * Parent of save() function
      * @param string $query Query string
-     * @return mixed|bool
+     * @return \Core\Orm\RowGateway|bool
      */
     protected function _save($query, $params)
     {
@@ -120,6 +129,25 @@ abstract class RowAbstract
 
         if ($response) {
             return $this;
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Delete current row
+     * @param string $query Query string
+     * @return bool
+     */
+    protected function _delete($query)
+    {
+        $db = $this->db;
+        $sth = $db->prepare($query);
+        $response = $sth->execute();
+
+        if ($response) {
+            return true;
         }
 
         return false;
@@ -170,6 +198,7 @@ abstract class RowAbstract
      * @param \Core\Orm\TableGateway $table Current row table
      * @param string $type Type of relationship (one, many, belongsTo)
      * @param array $params Relationship definition
+     * @return \Core\Orm\RowGateway | bool
      */
     private function parseRelationship($table, $type, $params)
     {
