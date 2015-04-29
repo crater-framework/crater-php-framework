@@ -256,4 +256,18 @@ class Migration extends MigrationAbstract
 
         return $this->executeQuery($q);
     }
+
+
+    /**
+     * Drop index
+     * @param string $table Table name
+     * @param string $indexName
+     * @return bool
+     */
+    public function dropIndex($table, $indexName)
+    {
+        $q = "DROP INDEX {$indexName} ON {$table}";
+
+        return $this->executeQuery($q);
+    }
 }
