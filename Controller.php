@@ -8,12 +8,14 @@
  */
 
 namespace Core;
+
 use Core\View,
     Core\Language,
     Core\FlashMessage,
     Core\Config as Conf;
 
-abstract class Controller {
+abstract class Controller
+{
 
     // View object
     public $view;
@@ -34,7 +36,8 @@ abstract class Controller {
      * Constructor
      * on run make an instance of the config class, language class and of view class
      */
-    public function __construct() {
+    public function __construct()
+    {
 
         //initialise config object
         $config = new Conf();
@@ -59,7 +62,8 @@ abstract class Controller {
      * Get name of controller
      * @return string
      */
-    public function getControllerName() {
+    public function getControllerName()
+    {
         return $this->name;
     }
 
@@ -68,7 +72,8 @@ abstract class Controller {
      * Set name of controller
      * @param string $name Name of controller
      */
-    public function setControllerName($val) {
+    public function setControllerName($val)
+    {
         $this->name = $val;
     }
 
@@ -82,7 +87,8 @@ abstract class Controller {
      * @param mixed $default Default value to use if key not found
      * @return mixed Returns null if key does not exist
      */
-    public function getCookie($key = null, $default = null) {
+    public function getCookie($key = null, $default = null)
+    {
         if (null === $key) {
             return $_COOKIE;
         }
@@ -99,7 +105,8 @@ abstract class Controller {
      * @param mixed $default Default value to use if key not found
      * @return mixed Returns null if key does not exist
      */
-    public function getPost($key = null, $default = null) {
+    public function getPost($key = null, $default = null)
+    {
         if (null === $key) {
             return $_POST;
         }
@@ -116,7 +123,8 @@ abstract class Controller {
      * @param mixed $default Default value to use if key not found
      * @return mixed Returns null if key does not exist
      */
-    public function getParam($key = null, $default = null) {
+    public function getParam($key = null, $default = null)
+    {
         if (null === $key) {
             return $_GET;
         }
@@ -133,7 +141,8 @@ abstract class Controller {
      * @param mixed $default Default value to use if key not found
      * @return mixed Returns null if key does not exist
      */
-    public function getServer($key = null, $default = null) {
+    public function getServer($key = null, $default = null)
+    {
         if (null === $key) {
             return $_SERVER;
         }
@@ -146,7 +155,8 @@ abstract class Controller {
      *
      * @return string
      */
-    public function getMethod() {
+    public function getMethod()
+    {
         return $this->getServer('REQUEST_METHOD');
     }
 
@@ -156,7 +166,8 @@ abstract class Controller {
      *
      * @return boolean
      */
-    public function isPost() {
+    public function isPost()
+    {
         if ('POST' == $this->getMethod()) {
             return true;
         }
@@ -169,7 +180,8 @@ abstract class Controller {
      *
      * @return boolean
      */
-    public function isGet() {
+    public function isGet()
+    {
         if ('GET' == $this->getMethod()) {
             return true;
         }
@@ -182,7 +194,8 @@ abstract class Controller {
      *
      * @return boolean
      */
-    public function isPut() {
+    public function isPut()
+    {
         if ('PUT' == $this->getMethod()) {
             return true;
         }
@@ -195,7 +208,8 @@ abstract class Controller {
      *
      * @return boolean
      */
-    public function isDelete() {
+    public function isDelete()
+    {
         if ('DELETE' == $this->getMethod()) {
             return true;
         }
@@ -208,7 +222,8 @@ abstract class Controller {
      *
      * @return boolean
      */
-    public function isHead() {
+    public function isHead()
+    {
         if ('HEAD' == $this->getMethod()) {
             return true;
         }
@@ -221,7 +236,8 @@ abstract class Controller {
      *
      * @return boolean
      */
-    public function isOptions() {
+    public function isOptions()
+    {
         if ('OPTIONS' == $this->getMethod()) {
             return true;
         }
@@ -234,7 +250,8 @@ abstract class Controller {
      *
      * @return boolean
      */
-    public function isPatch() {
+    public function isPatch()
+    {
         if ('PATCH' == $this->getMethod()) {
             return true;
         }
@@ -248,7 +265,8 @@ abstract class Controller {
      * @param  boolean $checkProxy
      * @return string
      */
-    public function getClientIp($checkProxy = true) {
+    public function getClientIp($checkProxy = true)
+    {
         if ($checkProxy && $this->getServer('HTTP_CLIENT_IP') != null) {
             $ip = $this->getServer('HTTP_CLIENT_IP');
         } else if ($checkProxy && $this->getServer('HTTP_X_FORWARDED_FOR') != null) {
@@ -262,12 +280,13 @@ abstract class Controller {
 
     /**
      * Redirect to chosen url
-     * @param  string  $url      the url to redirect to
+     * @param  string $url the url to redirect to
      * @param  boolean $fullpath if true use only url in redirect instead of using DIR
      */
-    public static function redirect($url){
+    public static function redirect($url)
+    {
 
-        header('Location: '.$url);
+        header('Location: ' . $url);
         exit;
     }
 }

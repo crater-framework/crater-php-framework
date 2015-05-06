@@ -8,16 +8,19 @@
  */
 
 namespace Core\Migration;
+
 use Core\Orm\QueryBuilder;
 
-abstract class MigrationAbstract {
+abstract class MigrationAbstract
+{
 
     /**
      * @var null|string Full path of migration files storage
      */
     public $storagePath = null;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->storagePath = dirname(dirname(dirname(dirname(__DIR__)))) . '/App/Data/Migrations';
     }
 
@@ -26,7 +29,8 @@ abstract class MigrationAbstract {
      * @param string $query Query string
      * @return bool
      */
-    public function executeQuery($query) {
+    public function executeQuery($query)
+    {
         $select = new QueryBuilder();
         $select->query($query)->execute();
 

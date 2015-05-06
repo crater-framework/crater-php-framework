@@ -8,9 +8,11 @@
  */
 
 namespace Core\Helpers;
+
 use \Core\Config as Cfg;
 
-class Session {
+class Session
+{
 
     /**
      * Determine if session has started
@@ -23,7 +25,8 @@ class Session {
     /**
      * Set session prefix
      */
-    private static function setPrefix() {
+    private static function setPrefix()
+    {
         $cfg = new Cfg();
         self::$_sessionPrefix = $cfg->getConfig()['session_prefix'];
     }
@@ -33,21 +36,21 @@ class Session {
      * Initialization session
      * If session has not started, start sessions
      */
-    public static function init(){
-
-        if(self::$_sessionStarted == false){
+    public static function init()
+    {
+        if (self::$_sessionStarted == false) {
             session_start();
             self::$_sessionStarted = true;
         }
-
     }
 
     /**
      * Add value to a session
-     * @param string $key   name the data to save
+     * @param string $key name the data to save
      * @param string $value the data to save
      */
-    public static function set($key,$value = false){
+    public static function set($key, $value = false)
+    {
 
         /**
          * Check whether session is set in array or not
@@ -56,14 +59,14 @@ class Session {
 
         self::setPrefix();
 
-        if(is_array($key) && $value === false){
+        if (is_array($key) && $value === false) {
 
             foreach ($key as $name => $value) {
-                $_SESSION[self::$_sessionPrefix.$name] = $value;
+                $_SESSION[self::$_sessionPrefix . $name] = $value;
             }
 
         } else {
-            $_SESSION[self::$_sessionPrefix.$key] = $value;
+            $_SESSION[self::$_sessionPrefix . $key] = $value;
         }
 
     }
@@ -73,11 +76,11 @@ class Session {
      * @param  string $key item to extract
      * @return string      return item
      */
-    public static function pull($key){
-
+    public static function pull($key)
+    {
         self::setPrefix();
-        $value = $_SESSION[self::$_sessionPrefix.$key];
-        unset($_SESSION[self::$_sessionPrefix.$key]);
+        $value = $_SESSION[self::$_sessionPrefix . $key];
+        unset($_SESSION[self::$_sessionPrefix . $key]);
 
         return $value;
     }
@@ -86,23 +89,24 @@ class Session {
     /**
      * Get item from session
      *
-     * @param  string  $key       item to look for in session
-     * @param  boolean $secondkey if used then use as a second key
+     * @param  string $key item to look for in session
+     * @param  boolean $secondKey if used then use as a second key
      * @return string             returns the key
      */
-    public static function get($key,$secondkey = false){
-
+    public static function get($key, $secondKey = false)
+    {
         self::setPrefix();
-        if($secondkey == true){
 
-            if(isset($_SESSION[self::$_sessionPrefix.$key][$secondkey])){
-                return $_SESSION[self::$_sessionPrefix.$key][$secondkey];
+        if ($secondKey == true) {
+
+            if (isset($_SESSION[self::$_sessionPrefix . $key][$secondKey])) {
+                return $_SESSION[self::$_sessionPrefix . $key][$secondKey];
             }
 
         } else {
 
-            if(isset($_SESSION[self::$_sessionPrefix.$key])){
-                return $_SESSION[self::$_sessionPrefix.$key];
+            if (isset($_SESSION[self::$_sessionPrefix . $key])) {
+                return $_SESSION[self::$_sessionPrefix . $key];
             }
 
         }
@@ -114,7 +118,8 @@ class Session {
     /**
      * @return string with the session id.
      */
-    public static function id() {
+    public static function id()
+    {
         return session_id();
     }
 
@@ -123,7 +128,8 @@ class Session {
      * Return the session array
      * @return array of session indexes
      */
-    public static function display(){
+    public static function display()
+    {
         return $_SESSION;
     }
 
@@ -131,18 +137,17 @@ class Session {
     /**
      * Empties and destroys the session
      */
-    public static function destroy($key='') {
+    public static function destroy($key = '')
+    {
+        if (self::$_sessionStarted == true) {
 
-        if(self::$_sessionStarted == true) {
-
-            if(empty($key)) {
+            if (empty($key)) {
                 session_unset();
                 session_destroy();
             } else {
                 self::setPrefix();
-                unset($_SESSION[self::$_sessionPrefix.$key]);
+                unset($_SESSION[self::$_sessionPrefix . $key]);
             }
-
         }
     }
 

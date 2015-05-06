@@ -8,9 +8,11 @@
  */
 
 namespace Core\Cli;
+
 use Core\Cli\Utils;
 
-class Build {
+class Build
+{
 
     /**
      * @var array $arguments Command line arguments
@@ -23,7 +25,8 @@ class Build {
      */
     private $appPath;
 
-    public function __construct($arguments) {
+    public function __construct($arguments)
+    {
         $this->appPath = dirname(dirname(dirname(dirname(__DIR__)))) . '/App';
 
         array_shift($arguments);
@@ -39,7 +42,7 @@ class Build {
             }
         }
 
-        if ($this->arguments[0] == 'model'){
+        if ($this->arguments[0] == 'model') {
             if (isset($this->arguments[1]) && isset($this->arguments[2])) {
                 $this->model($this->arguments[1], $this->arguments[2]);
             } else {
@@ -71,8 +74,9 @@ class Build {
      * @return bool
      * @throws Exception
      */
-    public function view($name) {
-        $fullPath = $name.".phtml";
+    public function view($name)
+    {
+        $fullPath = $name . ".phtml";
         $directory = dirname($fullPath);
 
         $globalDirPath = $this->appPath . "/Views/" . $directory;
@@ -84,10 +88,12 @@ class Build {
         }
 
         if (file_put_contents($fileName, "<!-- Created by CLI -->")) {
-            echo Utils::colorize('Create '. $fileName, 'SUCCESS');
+            echo Utils::colorize('Create ' . $fileName, 'SUCCESS');
+
             return true;
         } else {
-            echo Utils::colorize('Can\'t create '. $fileName, 'FAILURE');
+            echo Utils::colorize('Can\'t create ' . $fileName, 'FAILURE');
+
             return false;
         }
     }
@@ -99,8 +105,9 @@ class Build {
      * @return bool
      * @throws Exception
      */
-    public function template($name) {
-        $fullPath = $name.".phtml";
+    public function template($name)
+    {
+        $fullPath = $name . ".phtml";
         $directory = dirname($fullPath);
 
         $globalDirPath = $this->appPath . "/Templates/" . $directory;
@@ -124,11 +131,13 @@ class Build {
         $contents[] = '    </body>';
         $contents[] = '</html>';
 
-        if (file_put_contents($fileName, implode("\n",$contents))) {
-            echo Utils::colorize('Create '. $fileName, 'SUCCESS');
+        if (file_put_contents($fileName, implode("\n", $contents))) {
+            echo Utils::colorize('Create ' . $fileName, 'SUCCESS');
+
             return true;
         } else {
-            echo Utils::colorize('Can\'t create '. $fileName, 'FAILURE');
+            echo Utils::colorize('Can\'t create ' . $fileName, 'FAILURE');
+
             return false;
         }
     }
@@ -140,12 +149,17 @@ class Build {
      * @return bool
      * @throws Exception
      */
-    public function controller($name) {
+    public function controller($name)
+    {
         $fileName = "{$name}.php";
 
         if (isset($this->arguments[2])) {
             $actions = explode(',', $this->arguments[2]);
-            if (count($actions) == 0) $actions = array('index');
+
+            if (count($actions) == 0) {
+                $actions = array('index');
+            }
+
         } else {
             $actions = array('index');
         }
@@ -165,11 +179,13 @@ class Build {
         $contents[] = 'namespace Controllers;';
         $contents[] = 'use \Core\Controller;';
         $contents[] = '';
-        $contents[] = 'class '.$class.' extends Controller {';
+        $contents[] = 'class ' . $class . ' extends Controller';
+        $contents[] = '{';
 
         foreach ($actions as $action) {
             $contents[] = "";
-            $contents[] = "    public function ".$action."Action() {";
+            $contents[] = "    public function " . $action . "Action()";
+            $contents[] = "    {";
             $contents[] = "        ";
             $contents[] = "    }";
             $contents[] = "";
@@ -177,11 +193,13 @@ class Build {
 
         $contents[] = '}';
 
-        if (file_put_contents($file, implode("\n",$contents))){
-            echo Utils::colorize('Create '. $file, 'SUCCESS');
+        if (file_put_contents($file, implode("\n", $contents))) {
+            echo Utils::colorize('Create ' . $file, 'SUCCESS');
+
             return true;
         } else {
-            echo Utils::colorize('Can\'t create '. $file, 'FAILURE');
+            echo Utils::colorize('Can\'t create ' . $file, 'FAILURE');
+
             return false;
         }
     }
@@ -194,7 +212,8 @@ class Build {
      * @return bool
      * @throws Exception
      */
-    public function model($name, $primaryKey) {
+    public function model($name, $primaryKey)
+    {
         $fileName = "{$name}.php";
         $tableName = strtolower($name);
 
@@ -216,18 +235,18 @@ class Build {
         $contentsT[] = 'namespace Models\Table;';
         $contentsT[] = 'use Core\Orm\TableGateway;';
         $contentsT[] = '';
-        $contentsT[] = 'class '.$class.' extends TableGateway {';
-        $contentsT[] = "";
+        $contentsT[] = 'class ' . $class . ' extends TableGateway';
+        $contentsT[] = "{";
         $contentsT[] = "    protected \$_name = '{$tableName}';";
         $contentsT[] = "    protected \$_primary = '{$primaryKey}';";
         $contentsT[] = "    protected \$_rowClass = 'Models\Row\$class';";
         $contentsT[] = "";
         $contentsT[] = '}';
 
-        if (file_put_contents($fileTable, implode("\n",$contentsT))){
-            echo Utils::colorize('Create '. $fileTable, 'SUCCESS');
+        if (file_put_contents($fileTable, implode("\n", $contentsT))) {
+            echo Utils::colorize('Create ' . $fileTable, 'SUCCESS');
         } else {
-            echo Utils::colorize('Can\'t create '. $fileTable, 'FAILURE');
+            echo Utils::colorize('Can\'t create ' . $fileTable, 'FAILURE');
         }
 
         $contentsR = array('<?php');
@@ -242,15 +261,18 @@ class Build {
         $contentsR[] = 'namespace Models\Row;';
         $contentsR[] = 'use Core\Orm\RowGateway;';
         $contentsR[] = '';
-        $contentsR[] = 'class '.$class.' extends RowGateway {';
+        $contentsR[] = 'class ' . $class . ' extends RowGateway';
+        $contentsR[] = "{";
         $contentsR[] = "";
         $contentsR[] = '}';
 
-        if (file_put_contents($fileRow, implode("\n",$contentsR))){
-            echo Utils::colorize('Create '. $fileRow, 'SUCCESS');
+        if (file_put_contents($fileRow, implode("\n", $contentsR))) {
+            echo Utils::colorize('Create ' . $fileRow, 'SUCCESS');
+
             return true;
         } else {
-            echo Utils::colorize('Can\'t create '. $fileRow, 'FAILURE');
+            echo Utils::colorize('Can\'t create ' . $fileRow, 'FAILURE');
+
             return false;
         }
     }

@@ -8,26 +8,31 @@
  */
 
 namespace Core;
+
 use Core\Cli\Screen,
     Core\Cli\Migrate,
     Core\Cli\Build;
 
-class Cli {
+class Cli
+{
 
     /**
      * @var array $arguments Command line arguments
      */
     public $arguments;
 
-    public function __construct($arguments) {
-        require_once __DIR__. '/../../autoload.php';
+    public function __construct($arguments)
+    {
+        require_once __DIR__ . '/../../autoload.php';
 
         // Remove file name
         array_shift($arguments);
 
         $this->arguments = $arguments;
 
-        if (count($this->arguments) == 0) Screen::main();
+        if (count($this->arguments) == 0) {
+            Screen::main();
+        }
 
         if ($arguments[0] == 'migrate') {
             $this->migrate();
@@ -44,7 +49,8 @@ class Cli {
     /**
      * Call Migrate class
      */
-    public function migrate() {
+    public function migrate()
+    {
         new Migrate($this->arguments);
     }
 
@@ -52,7 +58,8 @@ class Cli {
     /**
      * Call Build class
      */
-    public function build() {
+    public function build()
+    {
         new Build($this->arguments);
     }
 
@@ -60,8 +67,9 @@ class Cli {
     /**
      * Print framework version
      */
-    public function version() {
-        echo 'Version: '.\Core\Crater::getVersion()."\r\n";
+    public function version()
+    {
+        echo 'Version: ' . \Core\Crater::getVersion() . "\r\n";
     }
 }
 

@@ -8,9 +8,11 @@
  */
 
 namespace Core\Orm\Gateway;
+
 use Core\Orm\Adapter;
 
-abstract class TableAbstract {
+abstract class TableAbstract
+{
 
     //Db adapter
     protected $db;
@@ -33,7 +35,8 @@ abstract class TableAbstract {
     protected $_belongs_to;
 
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->db = Adapter::get();
         $this->_setTableColumns();
     }
@@ -43,7 +46,8 @@ abstract class TableAbstract {
      * Get name of table
      * @return string Name of table
      */
-    public function getTableName() {
+    public function getTableName()
+    {
         return $this->_name;
     }
 
@@ -52,7 +56,8 @@ abstract class TableAbstract {
      * Get primary key column
      * @return string
      */
-    public function getPrimaryKey() {
+    public function getPrimaryKey()
+    {
         return $this->_primary;
     }
 
@@ -61,7 +66,8 @@ abstract class TableAbstract {
      * Get table columns
      * @return array
      */
-    public function getTableColumns() {
+    public function getTableColumns()
+    {
         return $this->_columns;
     }
 
@@ -70,7 +76,8 @@ abstract class TableAbstract {
      * Get Db adapter
      * @return mixed
      */
-    public function getAdapter() {
+    public function getAdapter()
+    {
         return $this->db;
     }
 
@@ -78,7 +85,8 @@ abstract class TableAbstract {
     /*
      * Get OneToOne relationships
      */
-    public function getOneRelationship() {
+    public function getOneRelationship()
+    {
         return $this->_has_one;
     }
 
@@ -86,7 +94,8 @@ abstract class TableAbstract {
     /*
      * Get ManyToMany relationships
      */
-    public function getManyRelationship() {
+    public function getManyRelationship()
+    {
         return $this->_has_many;
     }
 
@@ -94,7 +103,8 @@ abstract class TableAbstract {
     /*
      * Get BelongsTo relationships
      */
-    public function getBelongsToRelationship() {
+    public function getBelongsToRelationship()
+    {
         return $this->_belongs_to;
     }
 
@@ -102,9 +112,10 @@ abstract class TableAbstract {
     /*
      * Retrieve and set table columns
      */
-    private function _setTableColumns(){
+    private function _setTableColumns()
+    {
         $db = $this->db;
-        $q = $db->prepare("DESCRIBE ". $this->_name);
+        $q = $db->prepare("DESCRIBE " . $this->_name);
         $q->execute();
         $this->_columns = $q->fetchAll($db::FETCH_COLUMN);
     }
@@ -119,7 +130,8 @@ abstract class TableAbstract {
      * @param string $limit String with limit value
      * @return string
      */
-    protected function _fetch(array $where = null, array $column = null, $order = null, $limit = null) {
+    protected function _fetch(array $where = null, array $column = null, $order = null, $limit = null)
+    {
         $params = array();
         $query = 'SELECT ';
         if ($column) {
@@ -138,7 +150,7 @@ abstract class TableAbstract {
             foreach ($where as $key => $value) {
                 $query .= "$key = :where$iWhere AND ";
                 $params[":where$iWhere"] = $value;
-                $iWhere ++;
+                $iWhere++;
             }
             $query = substr($query, 0, -4);
             $query .= ")";
@@ -151,7 +163,9 @@ abstract class TableAbstract {
             }
         }
 
-        if ($limit) $query .= " LIMIT $limit";
+        if ($limit) {
+            $query .= " LIMIT $limit";
+        }
 
         return array('query' => $query, 'params' => $params);
     }
@@ -161,12 +175,13 @@ abstract class TableAbstract {
      * Parent of fetchRow() function
      * @param string $query Query string
      */
-    protected function _fetchRow($query, $params) {
+    protected function _fetchRow($query, $params)
+    {
         $db = $this->db;
 
         $sth = $db->prepare($query);
         foreach ($params as $key => $val) {
-            if(is_int($val)){
+            if (is_int($val)) {
                 $sth->bindValue("$key", $val, $db::PARAM_INT);
             } else {
                 $sth->bindValue("$key", $val);
@@ -182,11 +197,12 @@ abstract class TableAbstract {
      * Parent of fetchAll() function
      * @param string $query Query string
      */
-    protected function _fetchAll($query, $params) {
+    protected function _fetchAll($query, $params)
+    {
         $db = $this->db;
         $sth = $db->prepare($query);
         foreach ($params as $key => $val) {
-            if(is_int($val)){
+            if (is_int($val)) {
                 $sth->bindValue("$key", $val, $db::PARAM_INT);
             } else {
                 $sth->bindValue("$key", $val);
@@ -200,13 +216,15 @@ abstract class TableAbstract {
     /*
      * Parent of insert() function
      * @param string $query Query string
+     * @return \Core\Orm\RowGateway | bool
      */
-    protected function _insert($query, $params){
+    protected function _insert($query, $params)
+    {
         $db = $this->db;
         $sth = $db->prepare($query);
 
         foreach ($params as $key => $val) {
-            if(is_int($val)){
+            if (is_int($val)) {
                 $sth->bindValue("$key", $val, $db::PARAM_INT);
             } else {
                 $sth->bindValue("$key", $val);
@@ -222,6 +240,109 @@ abstract class TableAbstract {
 
             return $row;
         }
+        return false;
+    }
+
+    /**
+     * Delete a row or rowset
+     *
+     * @param array $where Where conditions array
+     * @return bool
+     */
+    protected function _delete($where)
+    {
+        $params = array();
+        $query = "DELETE FROM $this->_name";
+
+        $iWhere = 0;
+        $query .= " WHERE (";
+        foreach ($where as $key => $value) {
+            if (!is_int($key)) {
+                $query .= "$key = :where$iWhere AND ";
+                $params[":where$iWhere"] = $value;
+                $iWhere++;
+            } else {
+                $query .= "$value AND";
+            }
+        }
+        $query = substr($query, 0, -4);
+        $query .= ")";
+
+        $db = $this->db;
+        $sth = $db->prepare($query);
+
+        foreach ($params as $key => $val) {
+            if (is_int($val)) {
+                $sth->bindValue("$key", $val, $db::PARAM_INT);
+            } else {
+                $sth->bindValue("$key", $val);
+            }
+        }
+
+        $response = $sth->execute();
+
+        if ($response) {
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Update a row or rowset
+     *
+     * @param array $data Data array
+     * @param array $where Where conditions array
+     * @return bool
+     */
+    protected function _update($data, $where)
+    {
+        $params = array();
+        $query = "UPDATE $this->_name SET ";
+
+        $iSet = 0;
+        foreach ($data as $key => $value) {
+            $query .= "$key = :set$iSet, ";
+            $params[":set$iSet"] = $value;
+            $iSet++;
+        }
+
+        $query = substr($query, 0, -2);
+        $iWhere = 0;
+        $query .= " WHERE (";
+        foreach ($where as $key => $value) {
+            if (!is_int($key)) {
+                $query .= "$key = :where$iWhere AND ";
+                $params[":where$iWhere"] = $value;
+                $iWhere++;
+            } else {
+                $query .= "$value AND";
+            }
+        }
+
+        $query = substr($query, 0, -4);
+        $query .= ")";
+
+        $db = $this->db;
+        $sth = $db->prepare($query);
+
+        foreach ($params as $key => $val) {
+            if (is_int($val)) {
+                $sth->bindValue("$key", $val, $db::PARAM_INT);
+            } else {
+                $sth->bindValue("$key", $val);
+            }
+        }
+
+        $response = $sth->execute();
+
+        if ($response) {
+
+            return true;
+        }
+
         return false;
     }
 }

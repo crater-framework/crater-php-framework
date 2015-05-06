@@ -9,15 +9,18 @@
 
 namespace Core;
 
-class Config {
+class Config
+{
 
     public $configData;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->fileParser();
     }
 
-    public function globalInit() {
+    public function globalInit()
+    {
         // Turn on output buffering
         ob_start();
 
@@ -38,7 +41,7 @@ class Config {
         \Core\Helpers\Session::init();
 
         // Set the default template
-        if (isset($cfg['default_template'])){
+        if (isset($cfg['default_template'])) {
             \Core\Helpers\Session::set('template', $cfg['default_template']);
         } else {
             die('Please set variable "default_template" in your config.');
@@ -49,15 +52,17 @@ class Config {
      * Get app configurations
      * @return array
      */
-    public function getConfig() {
-       return $this->configData;
+    public function getConfig()
+    {
+        return $this->configData;
     }
 
 
     /*
      * Configuration file parser
      */
-    public function fileParser() {
+    public function fileParser()
+    {
 
         $globalFile = '../App/Config/global.php';
         $localFile = '../App/Config/local.php';

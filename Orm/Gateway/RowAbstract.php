@@ -9,7 +9,8 @@
 
 namespace Core\Orm\Gateway;
 
-abstract class RowAbstract {
+abstract class RowAbstract
+{
 
     // All data of record
     protected $_data;
@@ -23,11 +24,14 @@ abstract class RowAbstract {
      * @param \Core\Orm\TableGateway $table Set parent table
      * @param mixed $primaryKey Set primary key
      */
-    public function __construct(\Core\Orm\TableGateway $table, $primaryKey = null) {
+    public function __construct(\Core\Orm\TableGateway $table, $primaryKey = null)
+    {
         $this->table = $table;
         $this->db = $table->getAdapter();
 
-        if ($primaryKey) $this->_data = $this->_getData($primaryKey);
+        if ($primaryKey) {
+            $this->_data = $this->_getData($primaryKey);
+        }
     }
 
 
@@ -36,13 +40,15 @@ abstract class RowAbstract {
      * @param mixed $primaryKey
      * @return mixed
      */
-    private function _getData($primaryKey) {
+    private function _getData($primaryKey)
+    {
         $table = $this->table;
         $db = $this->db;
 
         $query = "SELECT * FROM {$table->getTableName()} WHERE {$table->getPrimaryKey()} = $primaryKey";
         $sth = $table->getAdapter()->prepare($query);
         $sth->execute();
+
         return $sth->fetch($db::FETCH_ASSOC);
     }
 
@@ -51,19 +57,28 @@ abstract class RowAbstract {
      * Set data function
      * @param array $data Array with record data
      */
-    public function setData(array $data) {
+    public function setData(array $data)
+    {
         $this->_data = $data;
     }
 
 
-    public function __set($key, $value) {
+    /**
+     * @param $key
+     * @param $value
+     * @return $this
+     */
+    public function __set($key, $value)
+    {
         $table = $this->table;
 
-        if ($key == $table->getPrimaryKey())
+        if ($key == $table->getPrimaryKey()) {
             die('You can\'t change primary key');
+        }
 
-        if (!in_array($key, $table->getTableColumns()))
+        if (!in_array($key, $table->getTableColumns())) {
             die("You don't have '$key' column");
+        }
 
         $this->_data[$key] = $value;
 
@@ -71,16 +86,23 @@ abstract class RowAbstract {
     }
 
 
-    public function __get($key) {
+    /**
+     * @param $key
+     * @return mixed
+     */
+    public function __get($key)
+    {
         $table = $this->table;
-        if (!in_array($key, $table->getTableColumns()))
+        if (!in_array($key, $table->getTableColumns())) {
             die("You don't have '$key' column");
+        }
 
         return $this->_data[$key];
     }
 
 
-    public function __call($method, $args) {
+    public function __call($method, $args)
+    {
         return $this->checkRelationship($method);
     }
 
@@ -88,20 +110,46 @@ abstract class RowAbstract {
     /**
      * Parent of save() function
      * @param string $query Query string
-     * @return mixed|bool
+     * @return \Core\Orm\RowGateway|bool
      */
-    protected function _save($query, $params) {
+    protected function _save($query, $params)
+    {
         $db = $this->db;
         $sth = $db->prepare($query);
+
         foreach ($params as $key => $val) {
-            if(is_int($val)){
+            if (is_int($val)) {
                 $sth->bindValue("$key", $val, $db::PARAM_INT);
             } else {
                 $sth->bindValue("$key", $val);
             }
         }
+
         $response = $sth->execute();
-        if ($response) return $this;
+
+        if ($response) {
+            return $this;
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Delete current row
+     * @param string $query Query string
+     * @return bool
+     */
+    protected function _delete($query)
+    {
+        $db = $this->db;
+        $sth = $db->prepare($query);
+        $response = $sth->execute();
+
+        if ($response) {
+            return true;
+        }
+
         return false;
     }
 
@@ -111,7 +159,8 @@ abstract class RowAbstract {
      * @param string @method
      * @return mixed
      */
-    private function checkRelationship($method) {
+    private function checkRelationship($method)
+    {
         $table = $this->table;
 
         $one = $table->getOneRelationship();
@@ -131,12 +180,14 @@ abstract class RowAbstract {
             $params = $many[$method];
         }
 
-        if (!is_null($belongsTo) &&array_key_exists($method, $belongsTo)) {
+        if (!is_null($belongsTo) && array_key_exists($method, $belongsTo)) {
             $type = 'belongsTo';
             $params = $belongsTo[$method];
         }
 
-        if (is_null($type)) return false;
+        if (is_null($type)) {
+            return false;
+        }
 
         return $this->parseRelationship($table, $type, $params);
     }
@@ -147,8 +198,10 @@ abstract class RowAbstract {
      * @param \Core\Orm\TableGateway $table Current row table
      * @param string $type Type of relationship (one, many, belongsTo)
      * @param array $params Relationship definition
+     * @return \Core\Orm\RowGateway | bool
      */
-    private function parseRelationship($table, $type, $params) {
+    private function parseRelationship($table, $type, $params)
+    {
 
         $tableClass = $params['refTableClass'];
         $refTable = new $tableClass();

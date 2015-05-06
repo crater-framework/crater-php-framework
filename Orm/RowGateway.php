@@ -8,15 +8,18 @@
  */
 
 namespace Core\Orm;
+
 use Core\Orm\Gateway\RowAbstract;
 
-class RowGateway extends RowAbstract {
+class RowGateway extends RowAbstract
+{
 
     /**
      * Save row (update)
-     * @return $this
+     * @return $this | bool
      */
-    public function save() {
+    public function save()
+    {
         $table = $this->table;
         $params = array();
 
@@ -24,17 +27,36 @@ class RowGateway extends RowAbstract {
         $iValue = 0;
 
         foreach ($this->_data as $key => $value) {
-            if ($key == $table->getPrimaryKey()) continue;
+            if ($key == $table->getPrimaryKey()) {
+                continue;
+            }
+
             $query .= "$key = :value$iValue, ";
             $params[":value$iValue"] = $value;
-            $iValue ++;
+            $iValue++;
         }
 
         $query = substr($query, 0, -2);
-        $valId = $this->_data[$table->getPrimaryKey()];
-        $query .= " WHERE {$table->getPrimaryKey()} = $valId";
+        $pk = $this->_data[$table->getPrimaryKey()];
+        $query .= " WHERE {$table->getPrimaryKey()} = $pk";
 
         return $this->_save($query, $params);
+    }
+
+
+    /**
+     * Delete current row
+     * @return bool
+     */
+    public function delete()
+    {
+        $table = $this->table;
+        $pk = $this->_data[$table->getPrimaryKey()];
+
+        $query = "DELETE FROM {$table->getTableName()} WHERE ";
+        $query .= "{$table->getPrimaryKey()} = $pk";
+
+        return $this->_delete($query);
     }
 
 
@@ -42,7 +64,8 @@ class RowGateway extends RowAbstract {
      * Get table
      * @return \Core\Orm\TableGateway
      */
-    public function getTable() {
+    public function getTable()
+    {
         return $this->table;
     }
 }

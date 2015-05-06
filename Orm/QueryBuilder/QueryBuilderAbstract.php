@@ -8,9 +8,11 @@
  */
 
 namespace Core\Orm\QueryBuilder;
+
 use Core\Orm\Adapter;
 
-abstract class QueryBuilderAbstract {
+abstract class QueryBuilderAbstract
+{
 
     // Db adapter
     protected $db;
@@ -20,11 +22,18 @@ abstract class QueryBuilderAbstract {
     /**
      * Class Constructor
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->db = Adapter::get();
     }
 
-    public function makeQuery() {
+
+    /**
+     * Make Query
+     * @return array
+     */
+    public function makeQuery()
+    {
         $data = $this->q;
 
         $params = array();
@@ -123,7 +132,13 @@ abstract class QueryBuilderAbstract {
         return ['query' => $query, 'params' => $params];
     }
 
-    public function execute() {
+
+    /**
+     * Execute Query
+     * @return \PDOStatement
+     */
+    public function execute()
+    {
         $db = $this->db;
 
         $qp = array();
@@ -134,7 +149,7 @@ abstract class QueryBuilderAbstract {
             $qp = $this->makeQuery();
             $sth = $db->prepare($qp['query']);
             foreach ($qp['params'] as $key => $val) {
-                if(is_int($val)){
+                if (is_int($val)) {
                     $sth->bindValue("$key", $val, $db::PARAM_INT);
                 } else {
                     $sth->bindValue("$key", $val);
@@ -147,14 +162,26 @@ abstract class QueryBuilderAbstract {
         return $sth;
     }
 
-    public function fetchAll() {
+
+    /**
+     * FetchAll method
+     * @return array
+     */
+    public function fetchAll()
+    {
         $sth = $this->execute();
         $db = $this->db;
 
         return $sth->fetchAll($db::FETCH_ASSOC);
     }
 
-    public function fetchRow() {
+
+    /**
+     * FetchRow method
+     * @return mixed
+     */
+    public function fetchRow()
+    {
         $sth = $this->execute();
         $db = $this->db;
 

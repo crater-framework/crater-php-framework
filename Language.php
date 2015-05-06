@@ -9,100 +9,104 @@
 
 namespace Core;
 
-class Language {
+class Language
+{
 
-	// Array with language
-	private $_array;
-	private static $_languageCode;
-
-
-	/**
-	 * Constructor
-	 * @param string $language_code Language code
-	 */
-	public function __construct($language_code) {
-		self::$_languageCode = $language_code;
-	}
+    // Array with language
+    private $_array;
+    private static $_languageCode;
 
 
-	/**
-	 * Load language
-	 * @param string $name Key of string
-	 * @param string $code Language code
-	 */
-	public function load($name, $code = null) {
-
-		if (is_null($code) or !$code) $code = self::$_languageCode;
-
-		// Lang file
-		$file = "../App/Language/$code/$name.php";
-
-		// Check if is readable
-		if(is_readable($file)){
-
-			// Require file
-			$this->_array = include($file);
-
-		} else {
-
-			// Display error
-			echo \Core\Error::display("Could not load language file '$code/$name.php'");
-			die;
-
-		}
-
-	}
+    /**
+     * Constructor
+     * @param string $language_code Language code
+     */
+    public function __construct($language_code)
+    {
+        self::$_languageCode = $language_code;
+    }
 
 
-	/**
-	 * Get element from language array by key
-	 * @param string $value Key of string
-	 * @return string
-	 */
-	public function get($value) {
+    /**
+     * Load language
+     * @param string $name Key of string
+     * @param string $code Language code
+     */
+    public function load($name, $code = null)
+    {
+        if (is_null($code) or !$code) $code = self::$_languageCode;
 
-		if(!empty($this->_array[$value])){
-			return $this->_array[$value];
-		} else {
-			return $value;
-		}
+        // Lang file
+        $file = "../App/Language/$code/$name.php";
 
-	}
+        // Check if is readable
+        if (is_readable($file)) {
+
+            // Require file
+            $this->_array = include($file);
+
+        } else {
+
+            // Display error
+            echo \Core\Error::display("Could not load language file '$code/$name.php'");
+            die;
+
+        }
+
+    }
 
 
-	/**
-	 * Get language for views
-	 * @param  string $value this is "word" value from language file
-	 * @param  string $name  name of file with language
-	 * @param  string $code  optional, language code
-	 * @return string
-	 */
-	public static function show($value, $name, $code = null) {
+    /**
+     * Get element from language array by key
+     * @param string $value Key of string
+     * @return string
+     */
+    public function get($value)
+    {
 
-		if (is_null($code)) $code = self::$_languageCode;
+        if (!empty($this->_array[$value])) {
+            return $this->_array[$value];
+        } else {
+            return $value;
+        }
 
-		// Lang file
-		$file = "../App/Language/$code/$name.php";
+    }
 
-		// Check if is readable
-		if(is_readable($file)){
 
-			// Require file
-			$_array = include($file);
+    /**
+     * Get language for views
+     * @param  string $value this is "word" value from language file
+     * @param  string $name name of file with language
+     * @param  string $code optional, language code
+     * @return string
+     */
+    public static function show($value, $name, $code = null)
+    {
 
-		} else {
+        if (is_null($code)) $code = self::$_languageCode;
 
-			// Display error
-			echo \Core\Error::display("Could not load language file '$code/$name.php'");
-			die;
+        // Lang file
+        $file = "../App/Language/$code/$name.php";
 
-		}
+        // Check if is readable
+        if (is_readable($file)) {
 
-		if(!empty($_array[$value])){
-			return $_array[$value];
-		} else {
-			return $value;
-		}
-	}
+            // Require file
+            $_array = include($file);
+
+        } else {
+
+            // Display error
+            echo \Core\Error::display("Could not load language file '$code/$name.php'");
+            die;
+
+        }
+
+        if (!empty($_array[$value])) {
+            return $_array[$value];
+        } else {
+            return $value;
+        }
+    }
 
 }

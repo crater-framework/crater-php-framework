@@ -8,15 +8,18 @@
  */
 
 namespace Core;
+
 use Core\Helpers\Session;
 
-class FlashMessage {
+class FlashMessage
+{
 
     /**
      * Create info flash message
      * @param string $message
      */
-    public function info($message) {
+    public function info($message)
+    {
         Session::set(array('FMess' => true, 'FMessType' => 'info', 'FMessMsg' => $message));
     }
 
@@ -25,7 +28,8 @@ class FlashMessage {
      * Create success flash message
      * @param string $message
      */
-    public function success($message) {
+    public function success($message)
+    {
         Session::set(array('FMess' => true, 'FMessType' => 'success', 'FMessMsg' => $message));
     }
 
@@ -34,7 +38,8 @@ class FlashMessage {
      * Create error flash message
      * @param string $message
      */
-    public function error($message) {
+    public function error($message)
+    {
         Session::set(array('FMess' => true, 'FMessType' => 'error', 'FMessMsg' => $message));
     }
 
@@ -43,7 +48,8 @@ class FlashMessage {
      * Create warning flash message
      * @param string $message
      */
-    public function warning($message) {
+    public function warning($message)
+    {
         Session::set(array('FMess' => true, 'FMessType' => 'warning', 'FMessMsg' => $message));
     }
 
@@ -51,10 +57,11 @@ class FlashMessage {
      * Create info flash message
      * @return array|bool
      */
-    public function getFlashMessage() {
+    public function getFlashMessage()
+    {
         if (Session::get('FMess') === true) {
 
-            $response = array (
+            $response = array(
                 'type' => Session::get('FMessType'),
                 'message' => Session::get('FMessMsg')
             );
