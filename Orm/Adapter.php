@@ -8,50 +8,65 @@
  */
 
 namespace Core\Orm;
+
 use \PDO;
 
-class Adapter {
+class Adapter
+{
 
     /**
      * @var array Array of saved databases for reusing
      */
-    protected static $instances = array();
-
-
+    protected static $instance = null;
+    protected static $settings=array();
     /**
-     * Static method get
+     *
+     *Private construct , avoid  create an instance
      */
-    public static function get () {
+    private function __construct(){
         $config = new \Core\Config();
         $cfg = $config->getConfig();
-
-        // Config information
         $type = $cfg['database']['type'];
         $host = $cfg['database']['host'];
         $name = $cfg['database']['name'];
         $user = $cfg['database']['user'];
         $pass = $cfg['database']['password'];
-
-        // ID for database based on the group information
-        $id = "$type.$host.$name.$user.$pass";
-
-        // Checking if the same
-        if(isset(self::$instances[$id])) {
-            return self::$instances[$id];
-        }
-
+        $key = "$type.$host.$name.$user.$pass";
+        $connector=null;
         try {
-            $instance = new PDO("$type:host=$host;dbname=$name;charset=utf8", $user, $pass);
-            $instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $connector = new PDO("$type:host=$host;dbname=$name;charset=utf8", $user, $pass);
+            $connector->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            // register a new database config into settings
+            if(is_null(self::getConfig($key))){
+                self::$settings[$key]=$connector;
+            }
 
-            // Setting Database into $instances to avoid duplication
-            self::$instances[$id] = $instance;
+            return $connector;
 
-            return $instance;
-        } catch(PDOException $e){
+        } catch (PDOException $e) {
             // In the event of an error record the error to errorlog.html
             \Core\Logger::newMessage($e);
             \Core\Logger::customErrorMsg();
         }
+
+        return $connector;
+
+    }
+
+    /**
+     * Static method getInstance
+     */
+    public static function getInstance()
+    {
+        self::$instance=new Adapter();
+        return self::$instance;
+    }
+
+    public static function getConfig($key)
+    {
+        if (!isset(self::$settings[$key])) {
+            return null;
+        }
+        return self::$settings[$key];
     }
 }
