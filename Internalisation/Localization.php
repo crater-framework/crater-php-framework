@@ -23,3 +23,5 @@ if (function_exists('bind_textdomain_codeset'))
 textdomain($domain);
 
 header("Content-type: text/html; charset=$encoding");
+
+

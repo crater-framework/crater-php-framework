@@ -36,6 +36,7 @@ class View
     {
         $this->vars = $vars;
         $this->template = Session::get('template');
+        require_once ("Internalisation/Localization.php");
     }
 
 
@@ -49,6 +50,11 @@ class View
         $this->template = $name;
         return true;
     }
+
+    /**
+     * @param $key
+     * @return string
+     */
     public function translate($key){
 
         return  _($key);
