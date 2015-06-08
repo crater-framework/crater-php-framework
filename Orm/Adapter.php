@@ -18,7 +18,7 @@ class Adapter
      * @var array Array of saved databases for reusing
      */
     protected static $instance = null;
-    protected static $settings=array();
+
     /**
      *
      *Private construct , avoid  create an instance
@@ -31,16 +31,10 @@ class Adapter
         $name = $cfg['database']['name'];
         $user = $cfg['database']['user'];
         $pass = $cfg['database']['password'];
-        $key = "$type.$host.$name.$user.$pass";
-        $connector=null;
+        $connector = null;
         try {
             $connector = new PDO("$type:host=$host;dbname=$name;charset=utf8", $user, $pass);
             $connector->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            // register a new database config into settings
-            if(is_null(self::getConfig($key))){
-                self::$settings[$key]=$connector;
-            }
-
             return $connector;
 
         } catch (PDOException $e) {
@@ -58,15 +52,11 @@ class Adapter
      */
     public static function getInstance()
     {
-        self::$instance=new Adapter();
+        if(is_null(self::$instance)) {
+            self::$instance = new Adapter();
+        }
         return self::$instance;
     }
 
-    public static function getConfig($key)
-    {
-        if (!isset(self::$settings[$key])) {
-            return null;
-        }
-        return self::$settings[$key];
-    }
+
 }

@@ -49,6 +49,10 @@ class View
         $this->template = $name;
         return true;
     }
+    public function translate($key){
+
+        return  _($key);
+    }
 
 
     /**
